@@ -1,0 +1,7 @@
+{
+  "name": "mini-electronics-shop",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
