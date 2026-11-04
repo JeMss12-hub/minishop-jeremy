@@ -9,8 +9,11 @@
     <ion-content class="ion-padding">
       <section class="welcome">
         <div class="status-dot"></div><p class="eyebrow">OWNER DASHBOARD</p>
-        <h1>Your shop, in <span>full control.</span></h1>
+        <!-- Pinalitan ang h1 para may version label -->
+        <h1>Your shop, in <span>full control.</span> <small style="font-size: 0.5em; color: #1769ff;">(v2.0)</small></h1>
         <p>Organize your electronics catalogue, maintain stock, and keep product details current.</p>
+        <!-- Idinagdag na version note -->
+        <p class="version-label" style="font-size: 0.75rem; color: #34d399; font-weight: 600; margin-top: 8px;">✨ Updated via CI/CD Pipeline ✨</p>
       </section>
       <section class="metric-grid" aria-label="Shop overview">
         <ion-card class="metric-card">
