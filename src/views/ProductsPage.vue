@@ -36,17 +36,6 @@
             <input v-model="newProduct.quantity" type="number" min="0" placeholder="0" class="native-input" />
           </ion-item>
 
-          <!-- BINAGO: Custom Button para sa Product Image -->
-          <ion-item lines="none" class="image-upload-item">
-            <ion-label position="stacked">Product image</ion-label>
-            <input type="file" accept="image/*" id="add-image-upload" class="hidden-file-input" @change="selectImage" />
-            <ion-button fill="outline" size="small" onclick="document.getElementById('add-image-upload').click()">
-              Choose Image
-            </ion-button>
-          </ion-item>
-          
-          <img v-if="imagePreview" :src="imagePreview" alt="Selected product preview" class="image-preview" />
-
           <ion-item>
             <ion-label position="stacked">Description</ion-label>
             <textarea v-model="newProduct.description" placeholder="Description" class="native-textarea" rows="3" />
@@ -60,10 +49,6 @@
 
       <ion-list class="inventory-list">
         <ion-item v-for="product in filteredProducts" :key="product.id">
-          <ion-thumbnail slot="start" class="product-image">
-            <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" />
-            <div v-else class="image-placeholder">No image</div>
-          </ion-thumbnail>
           <ion-label>
             <h2>{{ product.name }}</h2>
             <p>{{ product.category }} | ₱{{ product.price }}</p>
@@ -91,7 +76,6 @@ import {
   IonList,
   IonPage,
   IonSearchbar,
-  IonThumbnail,
   IonTitle,
   IonToolbar
 } from '@ionic/vue';
@@ -102,8 +86,6 @@ import type { Product } from '../models/product';
 const products = ref<Product[]>([]);
 const filteredProducts = ref<Product[]>([]);
 const searchTerm = ref('');
-const selectedImage = ref<File | null>(null);
-const imagePreview = ref('');
 const isSaving = ref(false);
 const newProduct = ref({
   name: '',
@@ -126,26 +108,6 @@ const filterProducts = () => {
   );
 };
 
-const selectImage = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0] ?? null;
-  if (file && file.size > 500 * 1024) {
-    alert('Choose an image smaller than 500 KB when storing it in Firestore.');
-    (event.target as HTMLInputElement).value = '';
-    selectedImage.value = null;
-    imagePreview.value = '';
-    return;
-  }
-  selectedImage.value = file;
-  imagePreview.value = file ? URL.createObjectURL(file) : '';
-};
-
-const imageToDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(String(reader.result));
-  reader.onerror = () => reject(reader.error);
-  reader.readAsDataURL(file);
-});
-
 const saveProduct = async () => {
   const cleanedProduct = {
     name: newProduct.value.name.trim(),
@@ -153,8 +115,7 @@ const saveProduct = async () => {
     price: Number(newProduct.value.price),
     quantity: Number(newProduct.value.quantity),
     description: newProduct.value.description.trim(),
-    createdAt: new Date(),
-    imageUrl: ''
+    createdAt: new Date()
   };
 
   if (!cleanedProduct.name || !cleanedProduct.category || !cleanedProduct.description) {
@@ -169,15 +130,15 @@ const saveProduct = async () => {
 
   isSaving.value = true;
   try {
-    if (selectedImage.value) cleanedProduct.imageUrl = await imageToDataUrl(selectedImage.value);
     await addDoc(collection(db, 'products'), cleanedProduct);
   } catch (error) {
-    console.error('Unable to save product image:', error);
-    alert('Could not save the image in Firestore. Try a smaller image.');
+    console.error('Unable to save product:', error);
+    alert('Could not save the product. Please try again.');
     return;
   } finally {
     isSaving.value = false;
   }
+  
   newProduct.value = {
     name: '',
     category: '',
@@ -185,8 +146,6 @@ const saveProduct = async () => {
     quantity: '0',
     description: ''
   };
-  selectedImage.value = null;
-  imagePreview.value = '';
   alert('Product added successfully!');
 };
 
@@ -211,17 +170,5 @@ const saveProduct = async () => {
 }
 
 .add-card { border: 1px solid #e4e7ec; box-shadow: 0 8px 24px rgba(16, 24, 40, .06); }
-.file-input { padding: 12px 0; width: 100%; }
-.image-preview { border: 1px solid #e4e7ec; border-radius: 12px; display: block; height: 160px; margin: 12px auto 0; object-fit: cover; width: 100%; }
-.product-image { --size: 58px; }.product-image img { height: 100%; object-fit: cover; width: 100%; }.image-placeholder { align-items: center; background: #eef2f6; color: #667085; display: flex; font-size: .65rem; height: 100%; justify-content: center; text-align: center; }
-.add-card { --background: #ffffff; border: 1px solid #e5eaf3; border-radius: 20px; box-shadow: 0 12px 26px rgba(24, 46, 89, .08); }.add-card ion-card-title { color: #101b33; font-size: 1.25rem; }.add-card ion-card-header::before { color: #1769ff; content: 'NEW INVENTORY'; display: block; font-size: .68rem; font-weight: 800; letter-spacing: .12em; margin-bottom: 6px; }.add-card ion-item { --background: transparent; --border-color: #edf0f5; --padding-start: 0; --inner-padding-end: 0; }.native-input, .native-textarea { background: #f8faff; border-color: #d9e2f0; color: #15233d; margin: 7px 0 10px; outline-color: #1769ff; }.image-preview { box-shadow: 0 8px 18px rgba(16, 27, 51, .12); }.inventory-list { background: transparent; border-radius: 18px; overflow: hidden; }.inventory-list ion-item { --background: #ffffff; --border-color: #edf0f5; --padding-bottom: 7px; --padding-top: 7px; margin-bottom: 2px; }.inventory-list h2 { color: #15233d; font-size: .98rem; font-weight: 750; }.inventory-list p { color: #65718a; font-size: .82rem; margin: 4px 0 7px; }.product-image { --border-radius: 13px; --size: 62px; box-shadow: 0 4px 11px rgba(15, 23, 42, .12); }
-
-/* BAGONG DAGDAG PARA SA CUSTOM FILE INPUT */
-.hidden-file-input {
-  display: none !important;
-}
-.image-upload-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-}
+.add-card { --background: #ffffff; border: 1px solid #e5eaf3; border-radius: 20px; box-shadow: 0 12px 26px rgba(24, 46, 89, .08); }.add-card ion-card-title { color: #101b33; font-size: 1.25rem; }.add-card ion-card-header::before { color: #1769ff; content: 'NEW INVENTORY'; display: block; font-size: .68rem; font-weight: 800; letter-spacing: .12em; margin-bottom: 6px; }.add-card ion-item { --background: transparent; --border-color: #edf0f5; --padding-start: 0; --inner-padding-end: 0; }.native-input, .native-textarea { background: #f8faff; border-color: #d9e2f0; color: #15233d; margin: 7px 0 10px; outline-color: #1769ff; }.inventory-list { background: transparent; border-radius: 18px; overflow: hidden; }.inventory-list ion-item { --background: #ffffff; --border-color: #edf0f5; --padding-bottom: 7px; --padding-top: 7px; margin-bottom: 2px; }.inventory-list h2 { color: #15233d; font-size: .98rem; font-weight: 750; }.inventory-list p { color: #65718a; font-size: .82rem; margin: 4px 0 7px; }
 </style>
