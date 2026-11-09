@@ -23,7 +23,7 @@ jobs:
         continue-on-error: true
 
       - name: Start updated container
-        run: docker run -d --name jeremy-crud-cor-container --restart unless-stopped -p 8100:80 jeremy-crud-cor
+        run: docker run -d --name jeremy-crud-cor-container --restart unless-stopped -p 8080:80 jeremy-crud-cor
 
       - name: Verify app
         shell: pwsh
@@ -31,7 +31,7 @@ jobs:
           $success = $false
           for ($i = 1; $i -le 15; $i++) {
             try {
-              Invoke-WebRequest -Uri http://localhost:8100 -UseBasicParsing -TimeoutSec 5 | Out-Null
+              Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -TimeoutSec 5 | Out-Null
               $success = $true
               break
             } catch {
