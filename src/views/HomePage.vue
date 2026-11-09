@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar color="primary">
         <img slot="start" src="/logo.svg" alt="Mini Shop logo" class="page-logo" />
-        <ion-title>Mini Shop Owner<v2.0></ion-title>
+        <ion-title>Mini Shop Owner (v2.0)</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
