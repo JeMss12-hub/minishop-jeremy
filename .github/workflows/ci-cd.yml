@@ -16,14 +16,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Ionic image
-        run: docker build -t jeremy-crud .
+        run: docker build -t jeremy-crud-cor .
 
       - name: Remove previous container
-        run: docker rm -f jeremy-crud-container
+        run: docker rm -f jeremy-crud-cor-container
         continue-on-error: true
 
       - name: Start updated container
-        run: docker run -d --name jeremy-crud-container --restart unless-stopped -p 8100:8100 jeremy-crud
+        run: docker run -d --name jeremy-crud-cor-container --restart unless-stopped -p 8100:80 jeremy-crud-cor
 
       - name: Verify app
         shell: pwsh
@@ -39,6 +39,6 @@ jobs:
             }
           }
           if (-not $success) {
-            docker logs jeremy-crud-container
+            docker logs jeremy-crud-cor-container
             exit 1
           }
